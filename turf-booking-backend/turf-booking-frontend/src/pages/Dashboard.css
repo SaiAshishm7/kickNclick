@@ -1,0 +1,42 @@
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f7f7f7;
+  }
+  
+  .dropdown-container {
+    margin: 20px 0;
+  }
+  
+  .calendar {
+    margin: 20px 0;
+  }
+  
+  .slots-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+  }
+  
+  .slots-container button {
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .slots-container button:hover {
+    background-color: #0056b3;
+  }
+  
+  h1, h3 {
+    color: #333;
+  }
+  
