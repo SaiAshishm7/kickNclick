@@ -183,4 +183,14 @@ router.delete('/cancel/:id', verifyToken, async (req, res) => {
   res.json({ status: 'ok' });
 });
 
+// Delete Turf
+router.delete('/turfs/:id', verifyToken, async (req, res) => {
+  const { id } = req.params;
+
+  const turf = await Turf.findByIdAndDelete(id);
+  if (!turf) return res.json({ status: 'error', error: 'Turf not found' });
+
+  res.json({ status: 'ok', message: 'Turf deleted successfully' });
+});
+
 module.exports = router;

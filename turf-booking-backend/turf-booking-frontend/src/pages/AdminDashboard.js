@@ -45,6 +45,19 @@ function AdminDashboard() {
     }
   };
 
+  const handleDeleteTurf = async (id) => {
+    const response = await axios.delete(`http://localhost:5001/api/booking/turfs/${id}`, {
+      headers: { Authorization: token },
+    });
+
+    if (response.data.status === 'ok') {
+      alert('Turf deleted successfully!');
+      setTurfs(turfs.filter(turf => turf._id !== id));
+    } else {
+      alert(response.data.error);
+    }
+  };
+
   return (
     <div className="admin-dashboard-container">
       <h1>Admin Dashboard</h1>
@@ -75,7 +88,17 @@ function AdminDashboard() {
         />
         <button type="submit">Add Turf</button>
       </form>
-      <TurfList turfs={turfs} />
+      <div className="turf-list">
+        {turfs.map(turf => (
+          <div key={turf._id} className="turf-item card">
+            <img src={`http://localhost:5001/${turf.imageUrl}`} alt={turf.name} />
+            <h3>{turf.name}</h3>
+            <p>Type: {turf.type}</p>
+            <p>Available Time Slots: {turf.timeSlots.join(', ')}</p>
+            <button onClick={() => handleDeleteTurf(turf._id)} className="delete-button">Delete</button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
