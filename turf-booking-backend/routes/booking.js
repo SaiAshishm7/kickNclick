@@ -3,7 +3,9 @@ const router = express.Router();
 const multer = require('multer');
 const Booking = require('../models/Booking');
 const Turf = require('../models/Turf');
+const User = require('../models/User'); // Import the User model
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');  // Add this line
 
 const JWT_SECRET = 'your_jwt_secret_key';
 
@@ -31,6 +33,46 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// Nodemailer setup
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'saiashishm1508@gmail.com',
+    pass: 'xqxt docg gmxc icms'
+  }
+});
+
+// Send Email Function
+const sendBookingEmail = (email, bookingDetails) => {
+  const mailOptions = {
+    from: 'saiashishm1508@gmail.com',
+    to: email,
+    subject: 'Turf Booking Confirmation',
+    text: `Your booking is confirmed for ${bookingDetails.turfName} on ${bookingDetails.date} at ${bookingDetails.timeSlot}.`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+    } else {
+      console.log('Email sent:', info.response);
+    }
+  });
+};
+
+// Test Email Sending Route
+router.post('/test-email', async (req, res) => {
+  const { email } = req.body;
+  const bookingDetails = {
+    turfName: "Test Turf",
+    date: "2025-01-01",
+    timeSlot: "10:00 AM - 11:00 AM"
+  };
+
+  sendBookingEmail(email, bookingDetails);
+  res.json({ status: 'ok' });
+});
+
 // Get All Turfs
 router.get('/turfs', async (req, res) => {
   const turfs = await Turf.find();
@@ -41,8 +83,15 @@ router.get('/turfs', async (req, res) => {
 router.post('/turfs', verifyToken, upload.single('image'), async (req, res) => {
   const { name, type, timeSlots } = req.body;
   const imageUrl = req.file ? req.file.path : null;
+  const parsedTimeSlots = timeSlots ? timeSlots.split(',').map(slot => slot.trim()) : [];
 
-  const turf = new Turf({ name, type, imageUrl, timeSlots });
+  const turf = new Turf({
+    name,
+    type,
+    imageUrl,
+    timeSlots: parsedTimeSlots,
+  });
+
   await turf.save();
   res.json({ status: 'ok', turf });
 });
@@ -54,10 +103,12 @@ router.get('/slots', async (req, res) => {
   const turf = await Turf.findById(turfId);
   if (!turf) return res.json({ status: 'error', error: 'Turf not found' });
 
+  const timeSlots = turf.timeSlots || [];
+
   const bookings = await Booking.find({ turfId, date });
   const bookedTimeSlots = bookings.map((booking) => booking.timeSlot);
 
-  const availableSlots = turf.timeSlots.filter(
+  const availableSlots = timeSlots.filter(
     (slot) => !bookedTimeSlots.includes(slot)
   );
 
@@ -82,6 +133,18 @@ router.post('/book', verifyToken, async (req, res) => {
   });
 
   await booking.save();
+
+  // Fetch user email
+  const user = await User.findById(req.userId);
+  const bookingDetails = {
+    turfName: turf.name,
+    date,
+    timeSlot,
+  };
+
+  // Send booking confirmation email
+  sendBookingEmail(user.email, bookingDetails);
+
   res.json({ status: 'ok', booking });
 });
 

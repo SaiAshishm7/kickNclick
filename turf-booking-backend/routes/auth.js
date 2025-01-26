@@ -8,13 +8,13 @@ const JWT_SECRET = 'your_jwt_secret_key';
 
 // Sign Up
 router.post('/signup', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, email } = req.body;
 
   const userExist = await User.findOne({ username });
   if (userExist) return res.json({ status: 'error', error: 'User already exists' });
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = new User({ username, password: hashedPassword, role: 'user' });
+  const user = new User({ username, password: hashedPassword, email, role: 'user' });
 
   await user.save();
   res.json({ status: 'ok' });
@@ -22,13 +22,13 @@ router.post('/signup', async (req, res) => {
 
 // Temporary route for admin creation
 router.post('/signup-admin', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, email } = req.body;
 
   const userExist = await User.findOne({ username });
   if (userExist) return res.json({ status: 'error', error: 'User already exists' });
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = new User({ username, password: hashedPassword, role: 'admin' });
+  const user = new User({ username, password: hashedPassword, email, role: 'admin' });
 
   await user.save();
   res.json({ status: 'ok' });

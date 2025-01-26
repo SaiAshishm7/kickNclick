@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import TurfFilter from '../components/TurfFilter';
+import './Dashboard.css';
+import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
   const [date, setDate] = useState(new Date());
@@ -10,14 +11,12 @@ function Dashboard() {
   const [selectedTurf, setSelectedTurf] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
   const token = localStorage.getItem('token');
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch turfs
     axios.get('http://localhost:5001/api/booking/turfs')
-      .then(res => {
-        console.log('Fetched turfs:', res.data.turfs); // Log fetched turfs
-        setTurfs(res.data.turfs);
-      })
+      .then(res => setTurfs(res.data.turfs))
       .catch(err => console.error(err));
   }, []);
 
@@ -30,10 +29,7 @@ function Dashboard() {
         date: date.toISOString().split('T')[0],
       },
     })
-    .then(res => {
-      console.log('Available slots:', res.data.slots); // Log available slots
-      setAvailableSlots(res.data.slots);
-    })
+    .then(res => setAvailableSlots(res.data.slots))
     .catch(err => console.error(err));
   };
 
@@ -58,25 +54,49 @@ function Dashboard() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    navigate('/');
+  };
+
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <select onChange={(e) => setSelectedTurf(JSON.parse(e.target.value))}>
-        <option value="">Select a Turf</option>
-        {turfs.map(turf => (
-          <option key={turf._id} value={JSON.stringify(turf)}>
-            {turf.name} - {turf.type}
-          </option>
-        ))}
-      </select>
-      <Calendar value={date} onChange={setDate} />
-      <div>
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <h1>Dashboard</h1>
+        <button onClick={handleLogout} className="logout-button">Sign Out</button>
+      </header>
+      <div className="dropdown-container">
+        <select onChange={(e) => setSelectedTurf(JSON.parse(e.target.value))}>
+          <option value="">Select a Turf</option>
+          {turfs.map(turf => (
+            <option key={turf._id} value={JSON.stringify(turf)}>
+              {turf.name} - {turf.type}
+            </option>
+          ))}
+        </select>
+      </div>
+      <Calendar value={date} onChange={setDate} className="calendar" />
+      <div className="slots-container">
         <h3>Available Slots</h3>
         {availableSlots.map(slot => (
           <button key={slot} onClick={() => bookSlot(slot)}>
             {slot}
           </button>
         ))}
+      </div>
+      <div className="turfs-container">
+        <h3>All Turfs</h3>
+        <div className="turfs-grid">
+          {turfs.map(turf => (
+            <div key={turf._id} className="turf-card">
+              <img src={`http://localhost:5001/${turf.imageUrl}`} alt={turf.name} />
+              <h4>{turf.name}</h4>
+              <p>Type: {turf.type}</p>
+              <p>Available Time Slots: {turf.timeSlots.join(', ')}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
