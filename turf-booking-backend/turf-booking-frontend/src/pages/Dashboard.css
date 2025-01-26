@@ -1,95 +1,151 @@
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --background-color: #f4f6f9;
+  --card-background: white;
+  --text-color: #2c3e50;
+}
+
 .dashboard-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  background-color: #f7f7f7;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: var(--background-color);
+  min-height: 100vh;
 }
 
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  width: 100%;
-  padding: 20px;
-  background-color: #007bff;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(52, 152, 219, 0.2);
+}
+
+.dashboard-header h1 {
+  color: var(--text-color);
+  font-size: 2.5rem;
+  margin: 0;
 }
 
 .logout-button {
-  background-color: white;
-  color: #007bff;
+  background: linear-gradient(to right, #e74c3c, #c0392b);
+  color: white;
   border: none;
-  border-radius: 5px;
   padding: 10px 20px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .logout-button:hover {
-  background-color: #f0f0f0;
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .dropdown-container {
-  margin: 20px 0;
+  margin-bottom: 1.5rem;
+}
+
+.dropdown-container select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.dropdown-container select:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
 }
 
 .calendar {
-  margin: 20px 0;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .slots-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 20px 0;
+  margin-bottom: 1.5rem;
+}
+
+.slots-container h3 {
+  margin-bottom: 1rem;
+  color: var(--text-color);
 }
 
 .slots-container button {
-  padding: 10px 20px;
-  margin: 5px;
-  background-color: #007bff;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .slots-container button:hover {
-  background-color: #0056b3;
+  background-color: var(--secondary-color);
+  transform: scale(1.05);
 }
 
 .turfs-container {
-  margin: 20px 0;
-  width: 100%;
+  margin-top: 2rem;
 }
 
 .turfs-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
 }
 
 .turf-card {
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  flex: 0 1 calc(33.333% - 20px);
-  box-sizing: border-box;
-  text-align: center;
+  background-color: var(--card-background);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.turf-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 
 .turf-card img {
   width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin-bottom: 10px;
+  height: 250px;
+  object-fit: cover;
 }
 
-h1, h3, h4 {
-  color: #333;
+.turf-card h4 {
+  margin: 1rem;
+  color: var(--text-color);
+}
+
+.turf-card p {
+  margin: 0 1rem 1rem;
+  color: #7f8c8d;
+}
+
+@media screen and (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logout-button {
+    margin-top: 1rem;
+  }
+
+  .turfs-grid {
+    grid-template-columns: 1fr;
+  }
 }
