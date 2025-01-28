@@ -198,4 +198,4 @@ router.delete('/turfs/:id', async (req, res) => {
   res.json({ status: 'ok', message: 'Turf deleted successfully' });
 });
 
-module.exports = router;
+module.exports = router
