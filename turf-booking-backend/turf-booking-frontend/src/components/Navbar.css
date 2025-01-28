@@ -1,0 +1,35 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--primary-color);
+  }
+  
+  .navbar .site-name {
+    color: white;
+    font-size: 1.5rem;
+  }
+  
+  .navbar nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .navbar nav ul li {
+    display: inline;
+  }
+  
+  .navbar nav ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  
+  .navbar nav ul li a:hover {
+    background-color: var(--secondary-color);
+  }
+  
