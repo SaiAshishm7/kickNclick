@@ -92,3 +92,54 @@
     grid-template-columns: 1fr;
   }
 }
+.add-turf-form {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--card-background);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.add-turf-form h3 {
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+}
+
+.add-turf-form input {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.add-turf-form .add-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-turf-form .add-button:hover {
+  background-color: var(--secondary-color);
+  transform: scale(1.05);
+}
+
+.delete-button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.delete-button:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}

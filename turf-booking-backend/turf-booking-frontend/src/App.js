@@ -10,7 +10,7 @@ import Navbar from './components/Navbar';
 function App() {
   return (
     <Router>
-      <Navbar /> {/* Single cohesive Navbar */}
+      <Navbar />
       <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/signup" element={<SignUp />} />

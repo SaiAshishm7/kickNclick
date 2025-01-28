@@ -3,9 +3,9 @@ const router = express.Router();
 const multer = require('multer');
 const Booking = require('../models/Booking');
 const Turf = require('../models/Turf');
-const User = require('../models/User'); // Import the User model
+const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');  // Add this line
+const nodemailer = require('nodemailer');
 
 const JWT_SECRET = 'your_jwt_secret_key';
 
@@ -79,8 +79,8 @@ router.get('/turfs', async (req, res) => {
   res.json({ status: 'ok', turfs });
 });
 
-// Add Turf
-router.post('/turfs', verifyToken, upload.single('image'), async (req, res) => {
+// Add Turf (without verifyToken)
+router.post('/turfs', upload.single('image'), async (req, res) => {
   const { name, type, timeSlots } = req.body;
   const imageUrl = req.file ? req.file.path : null;
   const parsedTimeSlots = timeSlots ? timeSlots.split(',').map(slot => slot.trim()) : [];
@@ -92,8 +92,13 @@ router.post('/turfs', verifyToken, upload.single('image'), async (req, res) => {
     timeSlots: parsedTimeSlots,
   });
 
-  await turf.save();
-  res.json({ status: 'ok', turf });
+  try {
+    await turf.save();
+    res.json({ status: 'ok', turf });
+  } catch (error) {
+    console.error('Error adding turf:', error);
+    res.status(500).json({ status: 'error', error: 'Failed to add turf' });
+  }
 });
 
 // Get Available Slots
@@ -184,7 +189,7 @@ router.delete('/cancel/:id', verifyToken, async (req, res) => {
 });
 
 // Delete Turf
-router.delete('/turfs/:id', verifyToken, async (req, res) => {
+router.delete('/turfs/:id', async (req, res) => {
   const { id } = req.params;
 
   const turf = await Turf.findByIdAndDelete(id);
