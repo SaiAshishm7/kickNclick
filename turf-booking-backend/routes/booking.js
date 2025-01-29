@@ -4,23 +4,7 @@ const multer = require('multer');
 const Booking = require('../models/Booking');
 const Turf = require('../models/Turf');
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-
-const JWT_SECRET = 'your_jwt_secret_key';
-
-// Middleware to verify token
-const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-  if (!token) return res.json({ status: 'error', error: 'No token provided' });
-
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if (err) return res.json({ status: 'error', error: 'Failed to authenticate token' });
-
-    req.userId = decoded.id;
-    next();
-  });
-};
 
 // Multer setup for file uploads
 const storage = multer.diskStorage({
@@ -37,15 +21,15 @@ const upload = multer({ storage });
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'saiashishm1508@gmail.com',
-    pass: 'xqxt docg gmxc icms'
+    user: 'kicknclick2@gmail.com',
+    pass: 'efzf lena ewdg xtsk'
   }
 });
 
 // Send Email Function
 const sendBookingEmail = (email, bookingDetails) => {
   const mailOptions = {
-    from: 'saiashishm1508@gmail.com',
+    from: 'kicknclick2@gmail.com',
     to: email,
     subject: 'Turf Booking Confirmation',
     text: `Your booking is confirmed for ${bookingDetails.turfName} on ${bookingDetails.date} at ${bookingDetails.timeSlot}.`
@@ -79,7 +63,7 @@ router.get('/turfs', async (req, res) => {
   res.json({ status: 'ok', turfs });
 });
 
-// Add Turf (without verifyToken)
+// Add Turf
 router.post('/turfs', upload.single('image'), async (req, res) => {
   const { name, type, timeSlots } = req.body;
   const imageUrl = req.file ? req.file.path : null;
@@ -121,70 +105,100 @@ router.get('/slots', async (req, res) => {
 });
 
 // Book a Slot
-router.post('/book', verifyToken, async (req, res) => {
-  const { turfId, date, timeSlot } = req.body;
+router.post('/book', async (req, res) => {
+  const { turfId, date, timeSlot, userId } = req.body;
+
+  console.log('Booking request received:', { turfId, date, timeSlot, userId });
 
   const turf = await Turf.findById(turfId);
-  if (!turf) return res.json({ status: 'error', error: 'Turf not found' });
+  if (!turf) {
+    console.error('Turf not found:', turfId);
+    return res.json({ status: 'error', error: 'Turf not found' });
+  }
 
   const existingBooking = await Booking.findOne({ turfId, date, timeSlot });
-  if (existingBooking) return res.json({ status: 'error', error: 'Time slot already booked' });
+  if (existingBooking) {
+    console.error('Time slot already booked:', { turfId, date, timeSlot });
+    return res.json({ status: 'error', error: 'Time slot already booked' });
+  }
 
   const booking = new Booking({
-    userId: req.userId,
+    userId: userId,
     turfId,
     date,
     timeSlot,
   });
 
   await booking.save();
+  console.log('Booking saved:', booking);
 
   // Fetch user email
-  const user = await User.findById(req.userId);
-  const bookingDetails = {
-    turfName: turf.name,
-    date,
-    timeSlot,
-  };
+  const user = await User.findById(userId);
+  console.log('User found:', user);
 
-  // Send booking confirmation email
-  sendBookingEmail(user.email, bookingDetails);
+  if (user && user.email) {
+    const bookingDetails = {
+      turfName: turf.name,
+      date,
+      timeSlot,
+    };
+
+    // Send booking confirmation email
+    sendBookingEmail(user.email, bookingDetails);
+  } else {
+    console.error('User not found or missing email');
+  }
 
   res.json({ status: 'ok', booking });
 });
 
 // Modify Booking
-router.put('/modify/:id', verifyToken, async (req, res) => {
+router.put('/modify/:id', async (req, res) => {
   const { id } = req.params;
   const { date, timeSlot } = req.body;
 
+  console.log('Modify booking request received:', { id, date, timeSlot });
+
   const booking = await Booking.findById(id);
-  if (!booking) return res.json({ status: 'error', error: 'Booking not found' });
+  if (!booking) {
+    console.error('Booking not found:', id);
+    return res.json({ status: 'error', error: 'Booking not found' });
+  }
 
   const existingBooking = await Booking.findOne({
     turfId: booking.turfId,
     date,
     timeSlot,
   });
-  if (existingBooking) return res.json({ status: 'error', error: 'Time slot already booked' });
+  if (existingBooking) {
+    console.error('Time slot already booked:', { turfId: booking.turfId, date, timeSlot });
+    return res.json({ status: 'error', error: 'Time slot already booked' });
+  }
 
   booking.date = date;
   booking.timeSlot = timeSlot;
   await booking.save();
 
+  console.log('Booking modified:', booking);
   res.json({ status: 'ok', booking });
 });
 
 // Cancel Booking
-router.delete('/cancel/:id', verifyToken, async (req, res) => {
+router.delete('/cancel/:id', async (req, res) => {
   const { id } = req.params;
 
+  console.log('Cancel booking request received:', id);
+
   const booking = await Booking.findById(id);
-  if (!booking) return res.json({ status: 'error', error: 'Booking not found' });
+  if (!booking) {
+    console.error('Booking not found:', id);
+    return res.json({ status: 'error', error: 'Booking not found' });
+  }
 
   booking.penalty = true;
   await booking.save();
 
+  console.log('Booking canceled:', booking);
   res.json({ status: 'ok' });
 });
 
@@ -192,9 +206,15 @@ router.delete('/cancel/:id', verifyToken, async (req, res) => {
 router.delete('/turfs/:id', async (req, res) => {
   const { id } = req.params;
 
-  const turf = await Turf.findByIdAndDelete(id);
-  if (!turf) return res.json({ status: 'error', error: 'Turf not found' });
+  console.log('Delete turf request received:', id);
 
+  const turf = await Turf.findByIdAndDelete(id);
+  if (!turf) {
+    console.error('Turf not found:', id);
+    return res.json({ status: 'error', error: 'Turf not found' });
+  }
+
+  console.log('Turf deleted:', turf);
   res.json({ status: 'ok', message: 'Turf deleted successfully' });
 });
 

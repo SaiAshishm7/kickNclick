@@ -20,20 +20,6 @@ router.post('/signup', async (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Temporary route for admin creation
-router.post('/signup-admin', async (req, res) => {
-  const { username, password, email } = req.body;
-
-  const userExist = await User.findOne({ username });
-  if (userExist) return res.json({ status: 'error', error: 'User already exists' });
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = new User({ username, password: hashedPassword, email, role: 'admin' });
-
-  await user.save();
-  res.json({ status: 'ok' });
-});
-
 // Login
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
