@@ -1,24 +1,35 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import './SignUp.css';
 
 function SignUp() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await axios.post('http://localhost:5001/api/auth/signup', {
-      username,
-      password,
-      email,
-    });
+    try {
+      const response = await axios.post('http://localhost:5001/api/auth/signup', {
+        username,
+        password,
+        email,
+      });
 
-    if (response.data.status === 'ok') {
-      alert('Sign up successful!');
-    } else {
-      alert(response.data.error);
+      if (response.data.status === 'ok') {
+        alert('Sign up successful!');
+        // Store userId and email in local storage
+        localStorage.setItem('userId', response.data.userId);
+        localStorage.setItem('email', email);
+        navigate('/dashboard');
+      } else {
+        alert(response.data.error);
+      }
+    } catch (error) {
+      console.error('Error signing up:', error);
+      alert('Failed to sign up.');
     }
   };
 

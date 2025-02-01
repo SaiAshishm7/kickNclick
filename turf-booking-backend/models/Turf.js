@@ -1,21 +1,11 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const TurfSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  type: {
-    type: String,
-    required: true,
-  },
-  imageUrl: {
-    type: String,
-  },
-  timeSlots: {
-    type: [String],
-    default: [],
-  },
+const turfSchema = new Schema({
+  name: { type: String, required: true },
+  type: { type: String, required: true },
+  imageUrl: { type: String },
+  timeSlots: { type: [String], required: true },
 });
 
-module.exports = mongoose.model('Turf', TurfSchema);
+module.exports = mongoose.model('Turf', turfSchema);

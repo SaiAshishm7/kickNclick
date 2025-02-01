@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import Homepage from './pages/Homepage';
 import Navbar from './components/Navbar';
+import Booking from './components/Booking'; // Import the Booking component
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/booking" element={<Booking />} /> {/* Add the Booking route */}
       </Routes>
     </Router>
   );

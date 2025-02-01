@@ -3,7 +3,6 @@ const router = express.Router();
 const multer = require('multer');
 const Booking = require('../models/Booking');
 const Turf = require('../models/Turf');
-const User = require('../models/User');
 const nodemailer = require('nodemailer');
 
 // Multer setup for file uploads
@@ -21,15 +20,15 @@ const upload = multer({ storage });
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'kicknclick2@gmail.com',
-    pass: 'efzf lena ewdg xtsk'
+    user: 'your_email@gmail.com',
+    pass: 'your_email_password'
   }
 });
 
 // Send Email Function
 const sendBookingEmail = (email, bookingDetails) => {
   const mailOptions = {
-    from: 'kicknclick2@gmail.com',
+    from: 'your_email@gmail.com',
     to: email,
     subject: 'Turf Booking Confirmation',
     text: `Your booking is confirmed for ${bookingDetails.turfName} on ${bookingDetails.date} at ${bookingDetails.timeSlot}.`
@@ -106,24 +105,23 @@ router.get('/slots', async (req, res) => {
 
 // Book a Slot
 router.post('/book', async (req, res) => {
-  const { turfId, date, timeSlot, userId } = req.body;
+  const { turfId, date, timeSlot } = req.body;
 
-  console.log('Booking request received:', { turfId, date, timeSlot, userId });
+  console.log('Booking request received:', { turfId, date, timeSlot });
 
   const turf = await Turf.findById(turfId);
   if (!turf) {
     console.error('Turf not found:', turfId);
-    return res.json({ status: 'error', error: 'Turf not found' });
+    return res.status(404).json({ status: 'error', error: 'Turf not found' });
   }
 
   const existingBooking = await Booking.findOne({ turfId, date, timeSlot });
   if (existingBooking) {
     console.error('Time slot already booked:', { turfId, date, timeSlot });
-    return res.json({ status: 'error', error: 'Time slot already booked' });
+    return res.status(409).json({ status: 'error', error: 'Time slot already booked' });
   }
 
   const booking = new Booking({
-    userId: userId,
     turfId,
     date,
     timeSlot,
@@ -131,23 +129,6 @@ router.post('/book', async (req, res) => {
 
   await booking.save();
   console.log('Booking saved:', booking);
-
-  // Fetch user email
-  const user = await User.findById(userId);
-  console.log('User found:', user);
-
-  if (user && user.email) {
-    const bookingDetails = {
-      turfName: turf.name,
-      date,
-      timeSlot,
-    };
-
-    // Send booking confirmation email
-    sendBookingEmail(user.email, bookingDetails);
-  } else {
-    console.error('User not found or missing email');
-  }
 
   res.json({ status: 'ok', booking });
 });
@@ -162,7 +143,7 @@ router.put('/modify/:id', async (req, res) => {
   const booking = await Booking.findById(id);
   if (!booking) {
     console.error('Booking not found:', id);
-    return res.json({ status: 'error', error: 'Booking not found' });
+    return res.status(404).json({ status: 'error', error: 'Booking not found' });
   }
 
   const existingBooking = await Booking.findOne({
@@ -172,7 +153,7 @@ router.put('/modify/:id', async (req, res) => {
   });
   if (existingBooking) {
     console.error('Time slot already booked:', { turfId: booking.turfId, date, timeSlot });
-    return res.json({ status: 'error', error: 'Time slot already booked' });
+    return res.status(409).json({ status: 'error', error: 'Time slot already booked' });
   }
 
   booking.date = date;
@@ -192,7 +173,7 @@ router.delete('/cancel/:id', async (req, res) => {
   const booking = await Booking.findById(id);
   if (!booking) {
     console.error('Booking not found:', id);
-    return res.json({ status: 'error', error: 'Booking not found' });
+    return res.status(404).json({ status: 'error', error: 'Booking not found' });
   }
 
   booking.penalty = true;
@@ -211,7 +192,7 @@ router.delete('/turfs/:id', async (req, res) => {
   const turf = await Turf.findByIdAndDelete(id);
   if (!turf) {
     console.error('Turf not found:', id);
-    return res.json({ status: 'error', error: 'Turf not found' });
+    return res.status(404).json({ status: 'error', error: 'Turf not found' });
   }
 
   console.log('Turf deleted:', turf);
